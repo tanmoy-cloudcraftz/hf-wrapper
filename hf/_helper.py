@@ -38,6 +38,8 @@ def hf_prepare_data(datastet_id:str, tokenizer, sample_size:int=-1, data_source:
     from datasets import load_dataset
 
 
+
+
     if data_source == 'HF':
         data = load_dataset(datastet_id)
         if sample_size != -1:
@@ -80,7 +82,9 @@ def hf_llm_train(model, tokenizer, data, save_model:bool=True, save_model_name:s
 
     if save_model:
         # push the model to HF hub
-        trainer.push_to_hub()
+        # trainer.push_to_hub()
+        trainer.save_model(save_model_name)
+        tokenizer.save_pretrained(save_model_name)
         # model.push_to_hub("test_model")
 
     return model
