@@ -31,13 +31,13 @@ def hf_get_tokenizer(tokenizer_id:str, tokenizer_type:str="auto"):
     return tokenizer
 
 
-def hf_prepare_data(datastet_id:str, tokenizer, sample_size:int=-1, data_source:str='HF'):
+# TODO: option to remove columns when necessary
+# TODO: streaming data option
+def hf_prepare_data(datastet_id:str, tokenizer, sample_size:int=-1, data_source:str='HF', target_text_column:str='text'):
     '''
     pre
     '''
     from datasets import load_dataset
-
-
 
 
     if data_source == 'HF':
@@ -45,8 +45,9 @@ def hf_prepare_data(datastet_id:str, tokenizer, sample_size:int=-1, data_source:
         if sample_size != -1:
             data = data['train'].select(range(sample_size))
 
-        data = data.map(lambda samples: tokenizer(samples["text"]), batched=True)
+        data = data.map(lambda samples: tokenizer(samples[target_text_column]), batched=True)
 
+        # TODO: print token count
     elif data_source == "GD":
         # TODO: implement data loading from google drive
         print('data loading from google drive is not supported yet')
@@ -55,6 +56,8 @@ def hf_prepare_data(datastet_id:str, tokenizer, sample_size:int=-1, data_source:
 
     return data
 
+
+# TODO: keyword arguement
 def hf_llm_train(model, tokenizer, data, save_model:bool=True, save_model_name:str=""):
     import transformers
 
@@ -83,7 +86,7 @@ def hf_llm_train(model, tokenizer, data, save_model:bool=True, save_model_name:s
     if save_model:
         # push the model to HF hub
         # trainer.push_to_hub()
-        trainer.save_model(save_model_name)
+        trainer.save_pretrained(save_model_name)
         tokenizer.save_pretrained(save_model_name)
         # model.push_to_hub("test_model")
 
