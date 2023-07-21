@@ -57,3 +57,17 @@ def hf_prepare_model_for_qlora(model_id:str, model_type:str, lora_target_modules
 
 
     return model
+
+def hf_load_peft_model(peft_model_id:str):
+    '''
+    this method loads qlora specific models
+    '''
+    from transformers import AutoModelForCausalLM, AutoTokenizer
+    from peft import PeftModel, PeftConfig
+
+    # load peft specific model
+    config = PeftConfig.from_pretrained(peft_model_id)
+    model = AutoModelForCausalLM.from_pretrained(config.base_model_name_or_path)
+    model = PeftModel.from_pretrained(model, peft_model_id)
+ 
+    return model

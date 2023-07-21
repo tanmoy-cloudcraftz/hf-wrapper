@@ -1,3 +1,8 @@
+# colab specific configurations
+env_type = 'colab'
+env_name = 'colab_llm_env'
+env_path = os.path.join('/content/drive/MyDrive/', env_name)
+env_status_file = 'env.ok'
 
 
 def hf_create_repo(user:str, model_name:str):
@@ -91,3 +96,53 @@ def hf_llm_train(model, tokenizer, data, save_model:bool=True, save_model_name:s
         # model.push_to_hub("test_model")
 
     return model
+
+
+def is_env_created_for_colab():
+    import os
+
+    if not os.path.exists(os.path.join(env_path, env_status_file)):
+        print('virtual environment is not set properly, setting up')
+        !pip install virtualenv
+        # TODO: the name of the environment should not be fixed
+        !virtualenv /content/drive/MyDrive/colab_llm_env
+    else:
+        print('virtual environment is set properly')    
+
+
+def create_env_for_colab(env_type:str, env_name:str, activate_env:bool):
+    '''
+    creates an environment for transformer,peft specific implementation.
+    uses the gdrive for logged in user
+    '''
+    import os, sys
+
+    if env_type == 'colab':
+        env_path = os.path.join("/content/drive/MyDrive/", env_name)
+        env_site_package = os.path.join(env_path,"lib/python3.10/site-packages/")
+
+        if not os.path.exists(os.path.join(env_path, env_status_file)):
+            print('environment not found, creating...')
+
+            # !virtualenv /content/drive/MyDrive/colab_llm_env
+
+            !source /content/drive/MyDrive/colab_llm_env/bin/activate; pip install -q -U bitsandbytes
+            !source /content/drive/MyDrive/colab_llm_env/bin/activate; pip install -q -U git+https://github.com/huggingface/transformers.git
+            !source /content/drive/MyDrive/colab_llm_env/bin/activate; pip install -q -U git+https://github.com/huggingface/peft.git
+            !source /content/drive/MyDrive/colab_llm_env/bin/activate; pip install -q -U git+https://github.com/huggingface/accelerate.git
+            !source /content/drive/MyDrive/colab_llm_env/bin/activate; pip install -q datasets
+            !source /content/drive/MyDrive/colab_llm_env/bin/activate; pip install -q -U git+https://github.com/tanmoy-cloudcraftz/hf-wrapper.git
+
+            env_state_file = os.path.join(env_path, env_status_file)
+            with open(env_state_file, 'w') as stat_file:
+                pass
+
+        else:
+            print('environment exists')
+
+        if activate_env:
+            print('activating environment')
+            sys.path.append(env_site_package)
+    else:
+        print(f'envtype={env_type} is not supported yet')
+
