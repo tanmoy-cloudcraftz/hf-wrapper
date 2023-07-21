@@ -58,9 +58,9 @@ def hf_prepare_model_for_qlora(model_id:str, model_type:str, lora_target_modules
 
     return model
 
-def hf_load_peft_model(peft_model_id:str):
+def hf_load_peft_model_tokenizer(peft_model_id:str):
     '''
-    this method loads qlora specific models
+    this method loads qlora specific model and corresponding tokenizer
     '''
     from transformers import AutoModelForCausalLM, AutoTokenizer
     from peft import PeftModel, PeftConfig
@@ -69,5 +69,9 @@ def hf_load_peft_model(peft_model_id:str):
     config = PeftConfig.from_pretrained(peft_model_id)
     model = AutoModelForCausalLM.from_pretrained(config.base_model_name_or_path)
     model = PeftModel.from_pretrained(model, peft_model_id)
- 
-    return model
+    tokenizer = AutoTokenizer.from_pretrained(config.base_model_name_or_path)
+
+    model = model.to("cuda:0")
+    model.eval()
+
+    return model, tokenizer
