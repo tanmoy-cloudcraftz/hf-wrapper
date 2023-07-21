@@ -1,3 +1,5 @@
+import os
+
 # colab specific configurations
 env_type = 'colab'
 env_name = 'colab_llm_env'
